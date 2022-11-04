@@ -31,6 +31,14 @@ public class IpList {
         return end - start;
     }
 
+    @Override
+    public String toString() {
+        return "IpList{" +
+                "start=" + start +
+                ", end=" + end +
+                '}';
+    }
+
     public String getNext(){
         String data = long2dotted(index);
         index++;

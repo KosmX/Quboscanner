@@ -21,6 +21,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -34,6 +35,7 @@ public class MainWindow extends JFrame {
     /**
      *
      */
+    @Serial
     private static final long serialVersionUID = 1L;
     public static DefaultTableModel dtm;
     private QuboInstance quboInstance;
@@ -229,6 +231,7 @@ public class MainWindow extends JFrame {
         if (!motdText.getText().isEmpty()) command += " -motd " + motdText.getText();
         if (!minPlayersText.getText().isEmpty()) command += " -on " + minPlayersText.getText();
 
+        System.out.println(command);
         return command.split(" ");
     }
 

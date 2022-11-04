@@ -1,5 +1,6 @@
 package me.replydev.qubo;
 
+import dev.kosmx.scannerMod.IpListList;
 import org.apache.commons.cli.*;
 
 import inet.ipaddr.IPAddressSeqRange;
@@ -94,51 +95,21 @@ public class InputData{
     public InputData(String[] command) throws InvalidRangeException,NumberFormatException {
         options = buildOptions();
         CommandLineParser parser = new DefaultParser();
-        String ipStart = "",ipEnd = "";
-        try 
+        try
         {
             cmd = parser.parse(options,command);
-            try
-            {
-            	//Check for begin-end range first, first split the string
-            	String[] beginEnd = cmd.getOptionValue("range").split("-");
-            	
-            	//See if its length is 2 (begin-end)
-            	if (beginEnd.length >= 2)
-            	{            		
-            		ipStart = cmd.getOptionValue("range").split("-")[0];
-            		ipEnd = cmd.getOptionValue("range").split("-")[1];
-            	}
+            if (cmd.getOptionValue("range").charAt(0) == ';') {
+                ipList = IpListList.Companion.of(cmd.getOptionValue("range"));
+            } else {
 
-                //Transform hostname into an IP
-                if(Objects.equals(ipStart, "")) {
-                    try {
-                        ipStart = InetAddress.getByName(cmd.getOptionValue("range")).getHostAddress();
-                        ipEnd = ipStart;
-                    } catch (UnknownHostException ignored) {}
+                try {
+                    ipList = tryGetIp(cmd.getOptionValue("range"));
+                } catch (NullPointerException | IndexOutOfBoundsException e) {
+                    if (Info.gui) throw new InvalidRangeException();
+                    else help();
                 }
-
-            	//Checks if the string split are both IPs. If not, IPAddressString parses them as a CIDR or shorthand range.
-            	if (IpList.isNotIp(ipStart) || IpList.isNotIp(ipEnd))
-            	{
-            		IPAddressSeqRange range = new IPAddressString(cmd.getOptionValue("range")).getSequentialRange();
-            		ipStart = range.getLower().toString();
-            		ipEnd = range.getUpper().toString();            		
-            	}
-            }
-            catch (NullPointerException | IndexOutOfBoundsException e)
-            {
-            	if(Info.gui) throw new InvalidRangeException();
-            	else help();
             }
 
-            try
-            {
-                ipList = new IpList(ipStart,ipEnd);
-            }        
-            catch (IllegalArgumentException e){
-                throw new IllegalArgumentException(e.getMessage());
-            }
             try{
                 portrange = new PortList(cmd.getOptionValue("ports"));
             }catch (NumberFormatException e){
@@ -154,10 +125,45 @@ public class InputData{
 
         if(isOutput())
         {
-            filename = FileUtils.getCorrectFileName("outputs/" + ipStart + "-" + ipEnd);
+            filename = FileUtils.getCorrectFileName("outputs/" + ipList);
             FileUtils.appendToFile("quboScanner by @zreply - Version " + Info.version + " " + Info.otherVersionInfo, filename);
         }
         else filename = null;
+    }
+
+    public static IpList tryGetIp(String rangeStr) throws InvalidRangeException {
+        String ipStart = "", ipEnd = "";
+        //Check for begin-end range first, first split the string
+        String[] beginEnd = rangeStr.split("-");
+
+        //See if its length is 2 (begin-end)
+        if (beginEnd.length >= 2) {
+            ipStart = rangeStr.split("-")[0];
+            ipEnd = rangeStr.split("-")[1];
+        }
+
+        //Transform hostname into an IP
+        if (Objects.equals(ipStart, "")) {
+            try {
+                ipStart = InetAddress.getByName(rangeStr).getHostAddress();
+                ipEnd = ipStart;
+            } catch (UnknownHostException ignored) {
+            }
+        }
+
+        //Checks if the string split are both IPs. If not, IPAddressString parses them as a CIDR or shorthand range.
+        if (IpList.isNotIp(ipStart) || IpList.isNotIp(ipEnd)) {
+            IPAddressSeqRange range = new IPAddressString(rangeStr).getSequentialRange();
+            ipStart = range.getLower().toString();
+            ipEnd = range.getUpper().toString();
+        }
+
+
+        try {
+            return new IpList(ipStart, ipEnd);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     public boolean isPing() {

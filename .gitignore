@@ -7,3 +7,9 @@ outputs/
 *.txt
 *.json
 /src/test/
+
+.gradle/
+build/
+out/
+classes/
+
