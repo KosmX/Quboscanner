@@ -11,7 +11,9 @@ import me.replydev.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 public class Check implements Runnable{
 
@@ -24,6 +26,8 @@ public class Check implements Runnable{
     private final String filterVersion;
     private final String filterMotd;
     private final int minPlayer;
+
+    private static final Path iconPath = Path.of("icons");
 
     public Check(String hostname, int port, int timeout, String filename, int count ,QuboInstance quboInstance,String filterVersion,String filterMotd,int minPlayer){
         this.hostname = hostname;
@@ -38,6 +42,13 @@ public class Check implements Runnable{
     }
 
     public void run(){
+        if (quboInstance.inputData.saveIcon() && !Files.isDirectory(iconPath)) {
+            try {
+                Files.createDirectory(iconPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         check();
         this.quboInstance.currentThreads.decrementAndGet();
     }
@@ -79,6 +90,14 @@ public class Check implements Runnable{
                             	FileUtils.appendToFile(dati,filename);
                             }
                             else FileUtils.appendToFile(singleLine,filename);
+                        }
+                        if(quboInstance.inputData.saveIcon() && response.getFavIcon() != null) {
+                            try (var iconFile = Files.newOutputStream(iconPath.resolve(hostname + "-" + port + ".png"))){
+                                iconFile.write(Base64.getDecoder().decode(response.getFavIcon().substring(response.getFavIcon().indexOf(",") + 1)));
+                            } catch (IOException|IllegalArgumentException e) {
+                                System.out.println(response.getFavIcon());
+                                e.printStackTrace();
+                            }
                         }
                     }
                     else Info.serverNotFilteredFound++;

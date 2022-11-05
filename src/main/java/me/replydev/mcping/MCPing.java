@@ -85,35 +85,8 @@ public class MCPing
         return getPingWithDetails(options).standard;
     }
 
-    public static class ResponseDetails {
-        public final FinalResponse standard;
-        public final ForgeResponseTranslate forgeTranslate;
-        public final ForgeResponse forge;
-        public final ForgeResponseOld oldForge;
-        public final ExtraResponse extraResponse;
-        public final NewResponse response;
-        public final OldResponse oldResponse;
-        public final LegacyPingResponse legacyResponse;
-        public final String json;
-
-        public ResponseDetails(FinalResponse standard,
-                               ForgeResponseTranslate forgeTranslate,
-                               ForgeResponse forge,
-                               ForgeResponseOld oldForge,
-                               ExtraResponse extraResponse,
-                               NewResponse response,
-                               OldResponse oldResponse,
-                               LegacyPingResponse legacyResponse,
-                               String json) {
-            this.standard = standard;
-            this.forgeTranslate = forgeTranslate;
-            this.forge = forge;
-            this.oldForge = oldForge;
-            this.extraResponse = extraResponse;
-            this.response = response;
-            this.oldResponse = oldResponse;
-            this.legacyResponse = legacyResponse;
-            this.json = json;
-        }
+    public record ResponseDetails(FinalResponse standard, ForgeResponseTranslate forgeTranslate, ForgeResponse forge,
+                                  ForgeResponseOld oldForge, ExtraResponse extraResponse, NewResponse response,
+                                  OldResponse oldResponse, LegacyPingResponse legacyResponse, String json) {
     }
 }
