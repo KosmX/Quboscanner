@@ -10,6 +10,7 @@ plugins {
     //id("org.openjfx.javafxplugin") version "0.0.13"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     kotlin("jvm") version "1.7.20"
+    kotlin("plugin.serialization") version "1.7.20"
 }
 
 //javafx {
@@ -34,6 +35,10 @@ dependencies {
     implementation("com.github.seancfoley:ipaddress:5.3.4")
     implementation("org.apache.logging.log4j:log4j-core:2.19.0")
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
+
+
+    implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 }
 
 group = "me.reply.qubo"

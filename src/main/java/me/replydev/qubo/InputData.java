@@ -102,7 +102,9 @@ public class InputData{
         try
         {
             cmd = parser.parse(options,command);
-            if (cmd.getOptionValue("range").charAt(0) == ';') {
+            if (cmd.getOptionValue("range").equals("file")) {
+                ipList = CLI.txtGet();
+            } else if (cmd.getOptionValue("range").charAt(0) == ';') {
                 ipList = IpListList.Companion.of(cmd.getOptionValue("range"));
             } else {
 

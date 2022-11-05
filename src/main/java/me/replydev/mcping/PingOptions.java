@@ -22,11 +22,11 @@ public class PingOptions {
         return this;
     }
 
-    String getHostname() {
+    public String getHostname() {
         return this.hostname;
     }
 
-    int getPort() {
+    public int getPort() {
         return this.port;
     }
 

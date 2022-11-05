@@ -1,6 +1,7 @@
 package me.replydev.mcping.net;
 
 import com.google.gson.JsonSyntaxException;
+import dev.kosmx.scannerMod.UtilKt;
 import me.replydev.mcping.MCPing;
 import me.replydev.mcping.PingOptions;
 import me.replydev.mcping.data.FinalResponse;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 
 public class Check implements Runnable{
 
@@ -68,12 +68,25 @@ public class Check implements Runnable{
                     if(response == null) continue;
                     if(response.getDescription().contains(filterMotd) && response.getVersion().getName().contains(filterVersion) && response.getPlayers().getOnline() > minPlayer)
                     {
+
+                        String icon = null;
+                        if(quboInstance.inputData.saveIcon() && response.getFavIcon() != null) {
+                            try {
+                                icon = UtilKt.writeIcon(response.getFavIcon());
+                            } catch (IllegalArgumentException e) {
+                                System.out.println(response.getFavIcon());
+                                e.printStackTrace();
+                            }
+                        }
+
+
                         String des = getGoodDescription(response.getDescription());
                         String dati = "-----------------------\n" + hostname + ":" + port +
                                 "\nVersion: " + response.getVersion().getName() + "\n" +
                                 "Online: " + response.getPlayers().getOnline() + "/" + response.getPlayers().getMax() + "\n" +
                                 "MOTD: " + des + "\n" +
-                                "Ping time: " + (System.currentTimeMillis() - time) + " ms";
+                                "Ping time: " + (System.currentTimeMillis() - time) + " ms" + "\n" +
+                                "Icon: " + icon;
                         String singleLine = "(" + hostname + ":" + port + ")(" + response.getPlayers().getOnline() + "/" + response.getPlayers().getMax() + ")" + "(" + response.getVersion().getName() + ")" + "(" + des + ")";
                         Info.serverFound++;
                         Info.serverNotFilteredFound++;
@@ -90,14 +103,6 @@ public class Check implements Runnable{
                             	FileUtils.appendToFile(dati,filename);
                             }
                             else FileUtils.appendToFile(singleLine,filename);
-                        }
-                        if(quboInstance.inputData.saveIcon() && response.getFavIcon() != null) {
-                            try (var iconFile = Files.newOutputStream(iconPath.resolve(hostname + "-" + port + ".png"))){
-                                iconFile.write(Base64.getDecoder().decode(response.getFavIcon().substring(response.getFavIcon().indexOf(",") + 1)));
-                            } catch (IOException|IllegalArgumentException e) {
-                                System.out.println(response.getFavIcon());
-                                e.printStackTrace();
-                            }
                         }
                     }
                     else Info.serverNotFilteredFound++;
